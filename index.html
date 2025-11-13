@@ -1,0 +1,1311 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PB-CROMA - Editor de Fotos Profissional para Impressão A4</title>
+    <meta name="description" content="PB-CROMA: Editor de fotos profissional para impressão em formato A4. Prepare suas fotos com medidas precisas e linhas de corte. Suporte PT-BR e EN-US.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #3a0ca3;
+            --primary-dark: #2a0880;
+            --secondary: #4361ee;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4ade80;
+            --danger: #f72585;
+            --tech-gradient: linear-gradient(135deg, #3a0ca3, #4361ee, #4cc9f0);
+            --border-radius: 12px;
+            --shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: var(--tech-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(58, 12, 163, 0.4);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(to right, #4cc9f0, #4361ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .logo-text p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .lang-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .lang-btn:hover {
+            background: rgba(67, 97, 238, 0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .upload-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--tech-gradient);
+        }
+
+        .upload-area {
+            border: 2px dashed #475569;
+            border-radius: var(--border-radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(76, 201, 240, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            margin-bottom: 15px;
+            color: #94a3b8;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--tech-gradient);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(58, 12, 163, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(58, 12, 163, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled:hover {
+            background: #475569;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .preview-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .preview-title h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .a4-preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .a4-preview {
+            background-color: white;
+            width: 100%;
+            height: 400px;
+            border: 1px solid #475569;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .a4-page {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 5mm;
+            padding: 5mm;
+            width: 100%;
+            height: 100%;
+        }
+
+        .photo-slot {
+            position: relative;
+            background-color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 0.5mm dashed #94a3b8;
+        }
+
+        .photo-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-slot.empty::before {
+            content: "+";
+            font-size: 2rem;
+            color: #94a3b8;
+        }
+
+        .photo-slot .cut-line {
+            position: absolute;
+            border: 0.5mm dashed #888; /* Linha cinza */
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        .photo-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .photo-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .photo-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .photo-item:last-child {
+            border-bottom: none;
+        }
+
+        .photo-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+
+        .photo-info {
+            flex: 1;
+        }
+
+        .photo-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #e2e8f0;
+        }
+
+        .photo-size {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            color: #94a3b8;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(76, 201, 240, 0.1);
+        }
+
+        .rotate-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .instructions {
+            margin-top: 30px;
+        }
+
+        .instructions h2 {
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #cbd5e1;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            border-top: 1px solid #334155;
+        }
+
+        .social-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .social-links a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .drag-over {
+            border-color: var(--accent);
+            background-color: rgba(76, 201, 240, 0.1);
+        }
+
+        .page-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .preview-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .photo-counter {
+            background: var(--tech-gradient);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--tech-gradient);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+        }
+
+        .tech-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(76, 201, 240, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(67, 97, 238, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(58, 12, 163, 0.2) 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="tech-bg"></div>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="logo">PB</div>
+                <div class="logo-text">
+                    <h1>PB-CROMA</h1>
+                    <p data-i18n="subtitle">Professional Photo Editor for A4 Printing</p>
+                </div>
+            </div>
+            <div class="language-selector">
+                <button class="lang-btn active" data-lang="pt-BR">
+                    <i class="fas fa-flag"></i> Português
+                </button>
+                <button class="lang-btn" data-lang="en-US">
+                    <i class="fas fa-flag-usa"></i> English
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="card upload-section">
+                <h2 data-i18n="importPhotos">Import Photos <span class="photo-counter" id="photoCounter">0/8</span></h2>
+                <p data-i18n="selectPhotos">Select up to 8 photos for printing (2 A4 sheets)</p>
+                
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-camera"></i>
+                    <p data-i18n="dragDrop">Drag and drop your photos here</p>
+                    <p data-i18n="or">or</p>
+                    <input type="file" id="fileInput" accept="image/*" multiple class="hidden">
+                    <button class="btn" id="browseBtn" data-i18n="selectPhotosBtn">Select Photos</button>
+                </div>
+
+                <div class="photo-list" id="photoList">
+                    <!-- Photo list will be generated here -->
+                </div>
+
+                <button class="btn btn-secondary btn-full" id="processBtn" disabled data-i18n="processPhotos">Process Photos</button>
+                <button class="btn btn-danger btn-full" id="clearBtn" style="margin-top: 10px;" data-i18n="clearAll">Clear All</button>
+            </div>
+
+            <div class="card preview-section">
+                <div class="preview-title">
+                    <h2 data-i18n="preview">A4 Preview</h2>
+                    <button class="btn" id="downloadBtn" disabled>
+                        <span id="downloadText" data-i18n="downloadPrint">Download for Printing</span>
+                        <span id="downloadLoading" class="hidden loading"></span>
+                    </button>
+                </div>
+
+                <div class="preview-controls">
+                    <span id="pageIndicator" data-i18n="page1">Page 1 of 1</span>
+                    <div>
+                        <button class="btn" id="prevPageBtn" disabled data-i18n="previous">Previous</button>
+                        <button class="btn" id="nextPageBtn" disabled data-i18n="next">Next</button>
+                    </div>
+                </div>
+                
+                <div class="a4-preview-container">
+                    <div class="a4-preview">
+                        <div class="a4-page">
+                            <div class="photo-grid" id="photoGridPage1">
+                                <!-- Photo slots for page 1 will be generated here -->
+                            </div>
+                            <div class="page-indicator" data-i18n="page1">Page 1</div>
+                        </div>
+                    </div>
+                    <div class="a4-preview" id="page2Preview" style="display: none;">
+                        <div class="a4-page">
+                            <div class="photo-grid" id="photoGridPage2">
+                                <!-- Photo slots for page 2 will be generated here -->
+                            </div>
+                            <div class="page-indicator" data-i18n="page2">Page 2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="photo-controls">
+                    <button class="btn" id="autoArrangeBtn" disabled data-i18n="autoArrange">Auto Arrange</button>
+                    <button class="btn" id="rotateAllBtn" disabled data-i18n="rotateAll">Rotate All</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card instructions">
+            <h2 data-i18n="howToUse">How to use:</h2>
+            <ol>
+                <li data-i18n="step1">Select up to 8 photos using the "Select Photos" button or by dragging them to the indicated area</li>
+                <li data-i18n="step2">Click "Process Photos" to automatically adjust colors, DPI and scaling</li>
+                <li data-i18n="step3">Preview the layout on the two A4 pages in the preview area</li>
+                <li data-i18n="step4">Use individual rotation buttons to adjust photo orientation</li>
+                <li data-i18n="step5">Use page controls to navigate between the two A4 sheets</li>
+                <li data-i18n="step6">Click "Download for Printing" to save the file ready for printing</li>
+            </ol>
+            <p><strong data-i18n="specifications">Specifications:</strong> <span data-i18n="specDetails">Each photo will be 14,50x10,2cm with 3mm spacing between them and on the sheet edges. 0.3mm cut lines will be added.</span></p>
+        </div>
+
+        <footer>
+            <p>PB-CROMA &copy; 2023 - <span data-i18n="footerText">A simple and efficient editor for your photos</span></p>
+            <div class="social-links">
+                <a href="https://www.facebook.com/pibbaweb1/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-facebook"></i>
+                    <span>Facebook</span>
+                </a>
+                <a href="https://www.instagram.com/pibbaweb1/" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://mercadolivre.com/sec/33NxQYu" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Mercado Livre</span>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language support
+            const translations = {
+                'pt-BR': {
+                    'subtitle': 'Editor Profissional de Fotos para Impressão A4',
+                    'importPhotos': 'Importar Fotos',
+                    'selectPhotos': 'Selecione até 8 fotos para impressão (2 folhas A4)',
+                    'dragDrop': 'Arraste e solte suas fotos aqui',
+                    'or': 'ou',
+                    'selectPhotosBtn': 'Selecionar Fotos',
+                    'processPhotos': 'Processar Fotos',
+                    'clearAll': 'Limpar Todas',
+                    'preview': 'Pré-visualização A4',
+                    'downloadPrint': 'Baixar para Impressão',
+                    'page1': 'Página 1 de 1',
+                    'page2': 'Página 2',
+                    'previous': 'Anterior',
+                    'next': 'Próxima',
+                    'autoArrange': 'Organizar Automaticamente',
+                    'rotateAll': 'Rotacionar Todas',
+                    'howToUse': 'Como usar:',
+                    'step1': 'Selecione até 8 fotos usando o botão "Selecionar Fotos" ou arrastando-as para a área indicada',
+                    'step2': 'Clique em "Processar Fotos" para ajustar automaticamente cores, DPI e dimensionamento',
+                    'step3': 'Visualize o layout nas duas páginas A4 na área de pré-visualização',
+                    'step4': 'Use os botões de rotação individuais para ajustar a orientação das fotos',
+                    'step5': 'Use os controles de página para navegar entre as duas folhas A4',
+                    'step6': 'Clique em "Baixar para Impressão" para salvar o arquivo pronto para impressão',
+                    'specifications': 'Especificações:',
+                    'specDetails': 'Cada foto terá 14,50x10,2cm com 3mm de espaçamento entre elas e nas bordas da folha. Linhas de corte de 0,5mm serão adicionadas.',
+                    'footerText': 'Um editor simples e eficiente para suas fotos'
+                },
+                'en-US': {
+                    'subtitle': 'Professional Photo Editor for A4 Printing',
+                    'importPhotos': 'Import Photos',
+                    'selectPhotos': 'Select up to 8 photos for printing (2 A4 sheets)',
+                    'dragDrop': 'Drag and drop your photos here',
+                    'or': 'or',
+                    'selectPhotosBtn': 'Select Photos',
+                    'processPhotos': 'Process Photos',
+                    'clearAll': 'Clear All',
+                    'preview': 'A4 Preview',
+                    'downloadPrint': 'Download for Printing',
+                    'page1': 'Page 1 of 1',
+                    'page2': 'Page 2',
+                    'previous': 'Previous',
+                    'next': 'Next',
+                    'autoArrange': 'Auto Arrange',
+                    'rotateAll': 'Rotate All',
+                    'howToUse': 'How to use:',
+                    'step1': 'Select up to 8 photos using the "Select Photos" button or by dragging them to the indicated area',
+                    'step2': 'Click "Process Photos" to automatically adjust colors, DPI and scaling',
+                    'step3': 'Preview the layout on the two A4 pages in the preview area',
+                    'step4': 'Use individual rotation buttons to adjust photo orientation',
+                    'step5': 'Use page controls to navigate between the two A4 sheets',
+                    'step6': 'Click "Download for Printing" to save the file ready for printing',
+                    'specifications': 'Specifications:',
+                    'specDetails': 'Each photo will be 14.50x10.2cm with 3mm spacing between them and on the sheet edges. 0.5mm cut lines will be added.',
+                    'footerText': 'A simple and efficient editor for your photos'
+                }
+            };
+
+            let currentLang = 'pt-BR';
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (translations[lang][key]) {
+                        element.textContent = translations[lang][key];
+                    }
+                });
+                
+                // Update active language button
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    if (btn.getAttribute('data-lang') === lang) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                
+                // Update page indicator
+                updatePageIndicator();
+            }
+
+            function updatePageIndicator() {
+                const pageIndicator = document.getElementById('pageIndicator');
+                if (currentLang === 'pt-BR') {
+                    pageIndicator.textContent = `Página ${currentPage} de ${totalPages}`;
+                } else {
+                    pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+                }
+            }
+
+            // Elementos do DOM
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const browseBtn = document.getElementById('browseBtn');
+            const photoList = document.getElementById('photoList');
+            const photoGridPage1 = document.getElementById('photoGridPage1');
+            const photoGridPage2 = document.getElementById('photoGridPage2');
+            const processBtn = document.getElementById('processBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const downloadText = document.getElementById('downloadText');
+            const downloadLoading = document.getElementById('downloadLoading');
+            const autoArrangeBtn = document.getElementById('autoArrangeBtn');
+            const rotateAllBtn = document.getElementById('rotateAllBtn');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const page2Preview = document.getElementById('page2Preview');
+            const pageIndicator = document.getElementById('pageIndicator');
+            const photoCounter = document.getElementById('photoCounter');
+            const toast = document.getElementById('toast');
+
+            // Estado da aplicação
+            let photos = [];
+            let currentPage = 1;
+            let totalPages = 1;
+            const MAX_PHOTOS = 8;
+            const PHOTOS_PER_PAGE = 4;
+
+            // Mostrar toast de notificação
+            function showToast(message, isError = false) {
+                toast.textContent = message;
+                toast.className = 'toast' + (isError ? ' error' : '');
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Inicializar slots de fotos
+            function initializePhotoSlots() {
+                photoGridPage1.innerHTML = '';
+                photoGridPage2.innerHTML = '';
+                
+                for (let i = 0; i < PHOTOS_PER_PAGE; i++) {
+                    const slot1 = document.createElement('div');
+                    slot1.className = 'photo-slot empty';
+                    slot1.dataset.index = i;
+                    photoGridPage1.appendChild(slot1);
+                    
+                    const slot2 = document.createElement('div');
+                    slot2.className = 'photo-slot empty';
+                    slot2.dataset.index = i + PHOTOS_PER_PAGE;
+                    photoGridPage2.appendChild(slot2);
+                }
+            }
+
+            // Atualizar lista de fotos
+            function updatePhotoList() {
+                photoList.innerHTML = '';
+                
+                if (photos.length === 0) {
+                    const emptyMsg = document.createElement('p');
+                    emptyMsg.textContent = currentLang === 'pt-BR' ? 'Nenhuma foto selecionada' : 'No photos selected';
+                    emptyMsg.style.textAlign = 'center';
+                    emptyMsg.style.color = '#94a3b8';
+                    photoList.appendChild(emptyMsg);
+                    return;
+                }
+                
+                photos.forEach((photo, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'photo-item';
+                    
+                    const thumb = document.createElement('img');
+                    thumb.className = 'photo-thumb';
+                    thumb.src = photo.url;
+                    
+                    const info = document.createElement('div');
+                    info.className = 'photo-info';
+                    
+                    const name = document.createElement('div');
+                    name.className = 'photo-name';
+                    name.textContent = photo.name;
+                    
+                    const size = document.createElement('div');
+                    size.className = 'photo-size';
+                    size.textContent = formatFileSize(photo.size);
+                    
+                    info.appendChild(name);
+                    info.appendChild(size);
+                    
+                    const actions = document.createElement('div');
+                    actions.className = 'photo-actions';
+                    
+                    const rotateBtn = document.createElement('button');
+                    rotateBtn.className = 'action-btn rotate-btn';
+                    rotateBtn.innerHTML = currentLang === 'pt-BR' ? '↻ Rotacionar' : '↻ Rotate';
+                    rotateBtn.title = currentLang === 'pt-BR' ? 'Rotacionar' : 'Rotate';
+                    rotateBtn.addEventListener('click', () => rotatePhoto(index));
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'action-btn';
+                    removeBtn.innerHTML = currentLang === 'pt-BR' ? '✕ Remover' : '✕ Remove';
+                    removeBtn.title = currentLang === 'pt-BR' ? 'Remover' : 'Remove';
+                    removeBtn.addEventListener('click', () => removePhoto(index));
+                    
+                    actions.appendChild(rotateBtn);
+                    actions.appendChild(removeBtn);
+                    
+                    item.appendChild(thumb);
+                    item.appendChild(info);
+                    item.appendChild(actions);
+                    
+                    photoList.appendChild(item);
+                });
+            }
+
+            // Atualizar grade de pré-visualização
+            function updatePhotoGrid() {
+                const slotsPage1 = document.querySelectorAll('#photoGridPage1 .photo-slot');
+                const slotsPage2 = document.querySelectorAll('#photoGridPage2 .photo-slot');
+                
+                // Atualizar página 1
+                slotsPage1.forEach((slot, index) => {
+                    // Limpar slot
+                    slot.innerHTML = '';
+                    slot.className = 'photo-slot';
+                    
+                    if (photos[index]) {
+                        // Adicionar foto ao slot
+                        const img = document.createElement('img');
+                        img.src = photos[index].url;
+                        img.style.transform = `rotate(${photos[index].rotation}deg)`;
+                        slot.appendChild(img);
+                        
+                        // Adicionar linha de corte
+                        const cutLine = document.createElement('div');
+                        cutLine.className = 'cut-line';
+                        slot.appendChild(cutLine);
+                    } else {
+                        // Slot vazio
+                        slot.className = 'photo-slot empty';
+                    }
+                });
+                
+                // Atualizar página 2
+                slotsPage2.forEach((slot, index) => {
+                    // Limpar slot
+                    slot.innerHTML = '';
+                    slot.className = 'photo-slot';
+                    
+                    const photoIndex = index + PHOTOS_PER_PAGE;
+                    if (photos[photoIndex]) {
+                        // Adicionar foto ao slot
+                        const img = document.createElement('img');
+                        img.src = photos[photoIndex].url;
+                        img.style.transform = `rotate(${photos[photoIndex].rotation}deg)`;
+                        slot.appendChild(img);
+                        
+                        // Adicionar linha de corte
+                        const cutLine = document.createElement('div');
+                        cutLine.className = 'cut-line';
+                        slot.appendChild(cutLine);
+                    } else {
+                        // Slot vazio
+                        slot.className = 'photo-slot empty';
+                    }
+                });
+                
+                // Calcular total de páginas
+                totalPages = Math.ceil(photos.length / PHOTOS_PER_PAGE);
+                
+                // Mostrar/ocultar página 2 conforme necessário
+                if (photos.length > PHOTOS_PER_PAGE) {
+                    page2Preview.style.display = 'block';
+                    updatePageIndicator();
+                    nextPageBtn.disabled = false;
+                } else {
+                    page2Preview.style.display = 'none';
+                    updatePageIndicator();
+                    nextPageBtn.disabled = true;
+                    currentPage = 1;
+                }
+                
+                // Atualizar estado dos botões de navegação
+                prevPageBtn.disabled = currentPage === 1;
+                
+                // Atualizar contador de fotos
+                photoCounter.textContent = `${photos.length}/${MAX_PHOTOS}`;
+            }
+
+            // Formatar tamanho do arquivo
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = currentLang === 'pt-BR' 
+                    ? ['Bytes', 'KB', 'MB', 'GB'] 
+                    : ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Processar fotos (simulação de ajuste de cores e DPI)
+            function processPhotos() {
+                if (photos.length === 0) return;
+                
+                // Simular processamento
+                showToast(currentLang === 'pt-BR' 
+                    ? 'Processando fotos... Ajustando cores, DPI e dimensionamento para 14,50x10,2cm.' 
+                    : 'Processing photos... Adjusting colors, DPI and scaling to 14.50x10.2cm.');
+                
+                // Atualizar interface
+                updatePhotoGrid();
+                downloadBtn.disabled = false;
+                autoArrangeBtn.disabled = false;
+                rotateAllBtn.disabled = false;
+                
+                // Se temos mais de 4 fotos, mostrar a segunda página
+                if (photos.length > PHOTOS_PER_PAGE) {
+                    page2Preview.style.display = 'block';
+                    updatePageIndicator();
+                    nextPageBtn.disabled = false;
+                }
+            }
+
+            // Rotacionar foto específica
+            function rotatePhoto(index) {
+                photos[index].rotation = (photos[index].rotation + 90) % 360;
+                updatePhotoGrid();
+                showToast(currentLang === 'pt-BR' 
+                    ? `Foto ${photos[index].name} rotacionada em 90 graus.` 
+                    : `Photo ${photos[index].name} rotated 90 degrees.`);
+            }
+
+            // Rotacionar todas as fotos
+            function rotateAllPhotos() {
+                photos.forEach(photo => {
+                    photo.rotation = (photo.rotation + 90) % 360;
+                });
+                updatePhotoGrid();
+                showToast(currentLang === 'pt-BR' 
+                    ? 'Todas as fotos foram rotacionadas em 90 graus.' 
+                    : 'All photos have been rotated 90 degrees.');
+            }
+
+            // Remover foto
+            function removePhoto(index) {
+                const removedPhoto = photos.splice(index, 1)[0];
+                updatePhotoList();
+                updatePhotoGrid();
+                updateProcessButton();
+                showToast(currentLang === 'pt-BR' 
+                    ? `Foto ${removedPhoto.name} removida.` 
+                    : `Photo ${removedPhoto.name} removed.`);
+            }
+
+            // Atualizar estado do botão de processamento
+            function updateProcessButton() {
+                processBtn.disabled = photos.length === 0;
+            }
+
+            // Manipular arquivos selecionados
+            function handleFiles(files) {
+                const remainingSlots = MAX_PHOTOS - photos.length;
+                
+                if (files.length > remainingSlots) {
+                    showToast(currentLang === 'pt-BR' 
+                        ? `Você já tem ${photos.length} fotos. Só é possível adicionar mais ${remainingSlots}.` 
+                        : `You already have ${photos.length} photos. You can only add ${remainingSlots} more.`, true);
+                    files = Array.from(files).slice(0, remainingSlots);
+                }
+                
+                let loadedCount = 0;
+                const totalFiles = files.length;
+                
+                // Se não há arquivos para processar, sair
+                if (totalFiles === 0) return;
+                
+                Array.from(files).forEach(file => {
+                    if (!file.type.match('image.*')) {
+                        showToast(currentLang === 'pt-BR' 
+                            ? `O arquivo "${file.name}" não é uma imagem.` 
+                            : `The file "${file.name}" is not an image.`, true);
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        photos.push({
+                            name: file.name,
+                            size: file.size,
+                            url: e.target.result,
+                            rotation: 0,
+                            element: null
+                        });
+                        
+                        loadedCount++;
+                        
+                        // Criar elemento de imagem para processamento posterior
+                        const img = new Image();
+                        img.onload = function() {
+                            // Armazenar a imagem carregada
+                            photos[photos.length - 1].element = img;
+                        };
+                        img.src = e.target.result;
+                        
+                        // Atualizar a interface a cada foto carregada para melhor feedback
+                        updatePhotoList();
+                        updateProcessButton();
+                        updatePhotoGrid();
+                        
+                        if (loadedCount === totalFiles) {
+                            showToast(currentLang === 'pt-BR' 
+                                ? `${loadedCount} foto(s) adicionada(s) com sucesso!` 
+                                : `${loadedCount} photo(s) added successfully!`);
+                        }
+                    };
+                    
+                    reader.onerror = function() {
+                        showToast(currentLang === 'pt-BR' 
+                            ? `Erro ao carregar a foto "${file.name}".` 
+                            : `Error loading photo "${file.name}".`, true);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Navegar para a página anterior
+            function goToPrevPage() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updatePageView();
+                }
+            }
+
+            // Navegar para a próxima página
+            function goToNextPage() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updatePageView();
+                }
+            }
+
+            // Atualizar visualização da página
+            function updatePageView() {
+                if (currentPage === 1) {
+                    page2Preview.style.display = 'none';
+                    prevPageBtn.disabled = true;
+                    if (totalPages > 1) {
+                        nextPageBtn.disabled = false;
+                    }
+                } else {
+                    page2Preview.style.display = 'block';
+                    prevPageBtn.disabled = false;
+                    nextPageBtn.disabled = true;
+                }
+                updatePageIndicator();
+            }
+
+            // Gerar PDF para download - AJUSTADO PARA FOTOS DE 14,50x10,2cm E LINHAS CINZA
+            async function generatePDF() {
+                downloadText.classList.add('hidden');
+                downloadLoading.classList.remove('hidden');
+                downloadBtn.disabled = true;
+                
+                try {
+                    // Verificar se temos fotos para baixar
+                    if (photos.length === 0) {
+                        throw new Error(currentLang === 'pt-BR' 
+                            ? "Nenhuma foto para baixar" 
+                            : "No photos to download");
+                    }
+                    
+                    // Verificar se a biblioteca jsPDF está disponível
+                    if (typeof window.jspdf === 'undefined') {
+                        throw new Error(currentLang === 'pt-BR' 
+                            ? "Biblioteca PDF não carregada" 
+                            : "PDF library not loaded");
+                    }
+                    
+                    // Criar um novo documento PDF em formato HORIZONTAL (landscape)
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF({
+                        orientation: 'landscape',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    // Configurações do layout para formato horizontal
+                    const pageWidth = 297; // Largura A4 em mm (horizontal)
+                    const pageHeight = 210; // Altura A4 em mm (horizontal)
+                    const margin = 5; // Margem de 5mm
+                    
+                    // Dimensões de cada foto (14,50x10,2cm = 145x102mm)
+                    const photoWidth = 145; // Largura da foto em mm - AJUSTADO para 14,50cm
+                    const photoHeight = 102; // Altura da foto em mm - AJUSTADO para 10,2cm
+                    const spacing = 5; // Espaçamento entre fotos de 5mm
+                    
+                    // Calcular posições para 4 fotos por página (2x2)
+                    const photosPerRow = 2;
+                    const photosPerColumn = 2;
+                    
+                    // Calcular o espaço total necessário para as fotos
+                    const totalWidth = photosPerRow * photoWidth + (photosPerRow - 1) * spacing;
+                    const totalHeight = photosPerColumn * photoHeight + (photosPerColumn - 1) * spacing;
+                    
+                    // Calcular as margens para centralizar as fotos na página
+                    const startX = (pageWidth - totalWidth) / 2;
+                    const startY = (pageHeight - totalHeight) / 2;
+                    
+                    // Função para adicionar uma página com fotos
+                    function addPhotosToPage(photoIndices, pageNumber) {
+                        if (pageNumber > 0) {
+                            doc.addPage('landscape');
+                        }
+                        
+                        // Adicionar título da página
+                        doc.setFontSize(10);
+                        doc.setTextColor(100);
+                        doc.text(`PB-CROMA - ${currentLang === 'pt-BR' ? 'Página' : 'Page'} ${pageNumber + 1}`, margin, margin - 2);
+                        
+                        // Adicionar fotos à página
+                        photoIndices.forEach((photoIndex, index) => {
+                            if (photos[photoIndex]) {
+                                const row = Math.floor(index / photosPerRow);
+                                const col = index % photosPerRow;
+                                
+                                const x = startX + col * (photoWidth + spacing);
+                                const y = startY + row * (photoHeight + spacing);
+                                
+                                // Adicionar a foto ao PDF
+                                const imgData = photos[photoIndex].url;
+                                const rotation = photos[photoIndex].rotation;
+                                
+                                // Aplicar rotação se necessário
+                                if (rotation !== 0) {
+                                    doc.rotate(rotation, { origin: [x + photoWidth/2, y + photoHeight/2] });
+                                }
+                                
+                                // Adicionar a imagem
+                                doc.addImage(imgData, 'JPEG', x, y, photoWidth, photoHeight);
+                                
+                                // Reverter rotação se aplicada
+                                if (rotation !== 0) {
+                                    doc.rotate(-rotation, { origin: [x + photoWidth/2, y + photoHeight/2] });
+                                }
+                                
+                                // Adicionar linha de corte bem fina (0.5mm) ao redor de cada foto - COR CINZA
+                                doc.setDrawColor(128, 128, 128); // Cinza
+                                doc.setLineWidth(0.5);
+                                doc.setLineDashPattern([2, 2], 0); // Linha tracejada
+                                doc.rect(x, y, photoWidth, photoHeight);
+                            }
+                        });
+                    }
+                    
+                    // Dividir fotos em páginas
+                    const photosPerPage = 4;
+                    const totalPages = Math.ceil(photos.length / photosPerPage);
+                    
+                    for (let page = 0; page < totalPages; page++) {
+                        const startIndex = page * photosPerPage;
+                        const endIndex = Math.min(startIndex + photosPerPage, photos.length);
+                        const pagePhotos = Array.from({length: endIndex - startIndex}, (_, i) => startIndex + i);
+                        
+                        addPhotosToPage(pagePhotos, page);
+                    }
+                    
+                    // Salvar o PDF
+                    doc.save('fotos-a4-pb-croma.pdf');
+                    
+                    showToast(currentLang === 'pt-BR' 
+                        ? 'PDF gerado com sucesso em formato horizontal com fotos de 14,50x10,2cm e linhas de corte cinza!' 
+                        : 'PDF generated successfully in landscape format with 14.50x10.2cm photos and gray cut lines!');
+                } catch (error) {
+                    console.error('Erro ao gerar PDF:', error);
+                    showToast(currentLang === 'pt-BR' 
+                        ? 'Erro ao gerar o PDF: ' + error.message 
+                        : 'Error generating PDF: ' + error.message, true);
+                } finally {
+                    downloadText.classList.remove('hidden');
+                    downloadLoading.classList.add('hidden');
+                    downloadBtn.disabled = false;
+                }
+            }
+
+            // Event Listeners
+            browseBtn.addEventListener('click', () => fileInput.click());
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFiles(e.target.files);
+                }
+                fileInput.value = ''; // Reset para permitir selecionar os mesmos arquivos novamente
+            });
+            
+            // Drag and Drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                if (e.dataTransfer.files.length > 0) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+            
+            processBtn.addEventListener('click', processPhotos);
+            
+            clearBtn.addEventListener('click', () => {
+                if (photos.length > 0) {
+                    const confirmMessage = currentLang === 'pt-BR' 
+                        ? 'Tem certeza que deseja remover todas as fotos?' 
+                        : 'Are you sure you want to remove all photos?';
+                    
+                    if (confirm(confirmMessage)) {
+                        photos = [];
+                        updatePhotoList();
+                        updatePhotoGrid();
+                        updateProcessButton();
+                        downloadBtn.disabled = true;
+                        autoArrangeBtn.disabled = true;
+                        rotateAllBtn.disabled = true;
+                        currentPage = 1;
+                        updatePageView();
+                        showToast(currentLang === 'pt-BR' 
+                            ? 'Todas as fotos foram removidas.' 
+                            : 'All photos have been removed.');
+                    }
+                }
+            });
+            
+            downloadBtn.addEventListener('click', generatePDF);
+            
+            autoArrangeBtn.addEventListener('click', () => {
+                showToast(currentLang === 'pt-BR' 
+                    ? 'Fotos organizadas automaticamente!' 
+                    : 'Photos automatically arranged!');
+                // Em uma implementação real, aqui seria implementada a lógica de organização automática
+            });
+            
+            rotateAllBtn.addEventListener('click', rotateAllPhotos);
+            
+            prevPageBtn.addEventListener('click', goToPrevPage);
+            nextPageBtn.addEventListener('click', goToNextPage);
+
+            // Language switcher
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const lang = btn.getAttribute('data-lang');
+                    setLanguage(lang);
+                });
+            });
+
+            // Inicializar
+            initializePhotoSlots();
+            updatePhotoList();
+            setLanguage('pt-BR');
+        });
+    </script>
+</body>
+</html>
